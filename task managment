@@ -1,0 +1,73 @@
+protected void attachmentBulletedList_Click(object sender, BulletedListEventArgs e)
+{
+    try
+    {
+        ListItem listItemObj = attachmentBulletedList.Items[e.Index];
+        string sourcePath = listItemObj.Value;
+        Response.AddHeader("Content-Disposition", "attachment;filename=\"" + listItemObj.Text + "\"");
+        Response.ContentType = "application/octet-stream";
+        Response.WriteFile(listItemObj.Value);
+    }
+    catch (SqlException sqlExceptionObj)
+    {
+        errorLabel.Text = sqlExceptionObj.Message;
+    }
+    catch (Exception exceptionObj)
+    {
+        errorLabel.Text = exceptionObj.Message;
+    }
+}
+
+protected void closeTaskButton_Click(object sender, EventArgs e)
+{
+    try
+    {
+        TaskManager taskManagerObject = new TaskManager();
+        taskObj = taskManagerObject.SelectTask(taskId);
+        taskObj.TaskStatus = "Close";
+        message = taskManagerObject.CloseTask(taskObj);
+        SaveClosingComment();
+        Response.Redirect("AdimHomePage.aspx?" + "&message=" + Server.UrlEncode(message));
+    }
+    catch (SqlException sqlExceptionObj)
+    {
+        errorLabel.Text = sqlExceptionObj.Message;
+    }
+    catch (Exception exceptionObj)
+    {
+        errorLabel.Text = exceptionObj.Message;
+    }
+}
+
+protected void tasksOfUserBulletedList_Click(object sender, BulletedListEventArgs e)
+{
+    ListItem listItemObj = tasksOfUserBulletedList.Items[e.Index];
+    taskId = listItemObj.Value;
+    Session["taskID"] = taskId;
+    Response.Redirect("AdminViewTaskUIPage.aspx");
+}
+<asp:BulletedList ID="tasksOfUserBulletedList" runat="server" OnClick="tasksOfUserBulletedList_Click">
+    <!-- Task list items will be generated dynamically -->
+</asp:BulletedList>
+
+<asp:LinkButton ID="closeTaskButton" runat="server" OnClick="closeTaskButton_Click">Close Task</asp:LinkButton>
+
+<asp:BulletedList ID="attachmentBulletedList" runat="server">
+    <!-- Attachment list items will be generated dynamically -->
+</asp:BulletedList>
+public class Task
+{
+    public int TaskId { get; set; }
+    public string TaskName { get; set; }
+    public string TaskDescription { get; set; }
+    public string TaskStatus { get; set; }
+    // Other task properties
+}
+public class Task
+{
+    public int TaskId { get; set; }
+    public string TaskName { get; set; }
+    public string TaskDescription { get; set; }
+    public string TaskStatus { get; set; }
+    // Other task properties
+}
